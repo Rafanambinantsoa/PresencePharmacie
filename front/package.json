@@ -1,0 +1,44 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@nuxt/image": "^1.0.0-rc.1",
+    "@nuxt/postcss8": "^1.1.3",
+    "@nuxtjs/color-mode": "^3.2.0",
+    "@nuxtjs/tailwindcss": "^6.7.2",
+    "@tailvue/nuxt": "^1.0.0",
+    "autoprefixer": "^10.4.14",
+    "daisyui": "^3.5.0",
+    "nuxt": "^3.6.5",
+    "postcss": "^8.4.21",
+    "tailwindcss": "^3.3.1"
+  },
+  "dependencies": {
+    "@morev/vue-transitions": "^2.3.6",
+    "@pinia/nuxt": "^0.4.11",
+    "@vueuse/nuxt": "^10.3.0",
+    "chart.js": "^4.3.3",
+    "flowbite-datepicker": "^1.2.2",
+    "notyf": "^3.10.0",
+    "nuxt-headlessui": "^1.1.4",
+    "nuxt-icon": "^0.4.2",
+    "nuxt-tailvue": "^1.0.95",
+    "nuxt-tv-toast": "^1.0.5",
+    "sass": "^1.64.0",
+    "sweetalert2": "^11.7.23",
+    "toastify-js": "^1.12.0",
+    "tw-elements": "^1.0.0-beta3",
+    "vue-chartjs": "^5.2.0",
+    "vue-demi": "^0.14.5",
+    "vue-tailwind-datepicker": "^1.4.6",
+    "vue-toastification": "^1.7.14",
+    "vue3-toastify": "^0.1.13"
+  }
+}
