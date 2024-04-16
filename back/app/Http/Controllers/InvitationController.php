@@ -10,6 +10,7 @@ use App\Models\Presence;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Mail;
 
 class InvitationController extends Controller
@@ -135,19 +136,27 @@ class InvitationController extends Controller
         ], 200);
     }
 
-    //recuper la liste de tous les invite qui ne sont pas venus faire le scan  
+
     public function getListAbsence($event_id)
     {
-        //recuperer  tous les user de mon app except role admin  
+        // Récupérer tous les utilisateurs de l'application sauf le rôle admin
         $usrs = User::where('role', '!=', 'admin')->get();
-        //recuperer tous les user qui ont fait le premierscan
+
+        // Récupérer tous les utilisateurs qui ont fait le premier scan
         $presences = Presence::where('evenement_id', $event_id)->where('firstPresence', true)->get();
 
-        //comparer les deux tableaux pour recuperer les absents
+        // Comparer les deux tableaux pour récupérer les absents
         $absents = $usrs->diff($presences);
 
-        return response()->json([
-            'absents' => $absents
-        ], 200);
+        // Paginer les résultats
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 5;
+        $currentPageItems = $absents->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        $absentsPaginated = new LengthAwarePaginator($currentPageItems, count($absents), $perPage);
+
+        return response(
+            $absentsPaginated,
+            200
+        );
     }
 }

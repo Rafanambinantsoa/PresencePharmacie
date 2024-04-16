@@ -349,6 +349,62 @@ const getNextPage = async () => {
 };
 
 
+//La listes des presents 
+const lesAbsents = ref(null);
+
+const getAbsent = async (id) => {
+    try {
+        const response = await $fetch(`${uri}event/listAbsence/${id}`, {
+            headers: {
+                'Authorization': 'Bearer ' + token.value
+            }
+        });
+
+        if (response) {
+            modalAbsent.showModal();
+            lesAbsents.value = response;
+            console.log(response);
+            // Afficher le modal ici si nécessaire
+        }
+    } catch (error) {
+        console.error("Une erreur s'est produite lors de la récupération des données :", error);
+    }
+};
+
+const getPreviousPageAbsent = async () => {
+    try {
+        const response = await $fetch(lesAbsents.value.pagination.prev_page_url, {
+            headers: {
+                'Authorization': 'Bearer ' + token.value
+            }
+        });
+
+        if (response) {
+            lesAbsents.value = response;
+        }
+    } catch (error) {
+        console.error("Une erreur s'est produite lors de la récupération des données de la page précédente :", error);
+    }
+};
+
+const getNextPageAbsent = async () => {
+    try {
+        const response = await $fetch(lesAbsents.value.pagination.next_page_url, {
+            headers: {
+                'Authorization': 'Bearer ' + token.value
+            }
+        });
+
+        if (response) {
+            lesAbsents.value = response;
+        }
+    } catch (error) {
+        console.error("Une erreur s'est produite lors de la récupération des données de la page suivante :", error);
+    }
+};
+
+
+
 </script>
 <template>
     <nav class="p-4 md:py-8 xl:px-0 md:container md:mx-w-6xl md:mx-auto">
@@ -484,7 +540,67 @@ const getNextPage = async () => {
     <!-- End Nav -->
     <!-- Start Main -->
     <main class="container mx-w-6xl mx-auto py-4">
-        <!-- modal statistique event terminer -->
+        <!-- modal pour afficher la liste des personnes absent  -->
+        <dialog id="modalAbsent" class="modal">
+            <form method="dialog" class="modal-box w-11/12 max-w-5xl">
+                <h3 class="font-bold text-lg">La liste des participants absents</h3>
+
+                <ul class="max-w-50 divide-y divide-gray-200 dark:divide-gray-700">
+                    <li v-if="lesAbsents" v-for="(presen, id) in lesAbsents.data" :key="id" class="py-3 sm:py-4">
+                        <div class="flex items-center space-x-4 rtl:space-x-reverse">
+
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+                                    {{ presen.firstname }} {{ presen.lastname }}
+                                </p>
+                                <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                                    {{ presen.email }}
+                                </p>
+                            </div>
+                            <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                                {{ presen.phone }}
+                            </div>
+                        </div>
+                    </li>
+
+                </ul>
+                <div class="flex flex-row mx-auto">
+                    <button type="button" @click="getPreviousPageAbsent()"
+                        class="bg-gray-800 text-white rounded-l-md border-r border-gray-100 py-2 hover:bg-red-700 hover:text-white px-3">
+                        <div class="flex flex-row align-middle">
+                            <svg class="w-5 mr-2" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            <p class="ml-2">Prev</p>
+                        </div>
+                    </button>
+                    <button type="button" @click="getNextPageAbsen()"
+                        class="bg-gray-800 text-white rounded-r-md py-2 border-l border-gray-200 hover:bg-red-700 hover:text-white px-3">
+                        <div class="flex flex-row align-middle">
+                            <span class="mr-2">Next</span>
+                            <svg class="w-5 ml-2" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                    </button>
+                </div>
+
+
+                <div class="modal-action">
+
+                    <!-- if there is a button, it will close the modal -->
+                    <button class="btn">Fermer</button>
+                </div>
+            </form>
+        </dialog>
+
+        <!-- modal des personnes present  -->
         <dialog id="modalPresent" class="modal">
             <form method="dialog" class="modal-box w-11/12 max-w-5xl">
                 <h3 class="font-bold text-lg">La liste de tout ceux qui sont venus</h3>
@@ -702,7 +818,7 @@ const getNextPage = async () => {
                             </button>
                         </div>
                         <div class="flex-1">
-                            <button
+                            <button @click="getAbsent(detailEvent.id)"
                                 class="mr-6 text-emerald-500 bg-transparent border border-solid border-emerald-500 hover:bg-emerald-500 hover:text-white active:bg-emerald-600 font-bold uppercase text-xs px-4 py-2 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
                                 type="button">
                                 <i class="fas fa-heart"></i> Participants Absent
