@@ -612,8 +612,8 @@ const getNextPageFirst = async () => {
             <form method="dialog" class="modal-box w-11/12 max-w-5xl">
                 <h3 class="font-bold text-lg">La liste des participants qui n'ont fait que le premier scan </h3>
                 <ul class="max-w-50 divide-y divide-gray-200 dark:divide-gray-700">
-                    <li v-if="lesPresentsFirstScan" v-for="(presen, id) in lesPresentsFirstScan.data" :key="id"
-                        class="py-3 sm:py-4">
+                    <li v-if="lesPresentsFirstScan.data.length" v-for="(presen, id) in lesPresentsFirstScan.data"
+                        :key="id" class="py-3 sm:py-4">
                         <div class="flex items-center space-x-4 rtl:space-x-reverse">
 
                             <div class="flex-1 min-w-0">
@@ -629,34 +629,40 @@ const getNextPageFirst = async () => {
                             </div>
                         </div>
                     </li>
+                    <li v-else>
+                        <p class="mt-10 mb-5 text-center text-gray-500 dark:text-gray-400">Aucune donnée disponible</p>
+                    </li>
 
                 </ul>
-                <div class="flex flex-row mx-auto">
-                    <button type="button" @click="getPreviousPageFirst()"
-                        class="bg-gray-800 text-white rounded-l-md border-r border-gray-100 py-2 hover:bg-red-700 hover:text-white px-3">
-                        <div class="flex flex-row align-middle">
-                            <svg class="w-5 mr-2" fill="currentColor" viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd"
-                                    d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            <p class="ml-2">Prev</p>
-                        </div>
-                    </button>
-                    <button type="button" @click="getNextPageFirst()"
-                        class="bg-gray-800 text-white rounded-r-md py-2 border-l border-gray-200 hover:bg-red-700 hover:text-white px-3">
-                        <div class="flex flex-row align-middle">
-                            <span class="mr-2">Next</span>
-                            <svg class="w-5 ml-2" fill="currentColor" viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd"
-                                    d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                    </button>
+                <div v-if="lesPresentsFirstScan.data.length">
+                    <div class="flex flex-row mx-auto">
+                        <button type="button" @click="getPreviousPageFirst()"
+                            class="bg-gray-800 text-white rounded-l-md border-r border-gray-100 py-2 hover:bg-red-700 hover:text-white px-3">
+                            <div class="flex flex-row align-middle">
+                                <svg class="w-5 mr-2" fill="currentColor" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <p class="ml-2">Prev</p>
+                            </div>
+                        </button>
+                        <button type="button" @click="getNextPageFirst()"
+                            class="bg-gray-800 text-white rounded-r-md py-2 border-l border-gray-200 hover:bg-red-700 hover:text-white px-3">
+                            <div class="flex flex-row align-middle">
+                                <span class="mr-2">Next</span>
+                                <svg class="w-5 ml-2" fill="currentColor" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                        </button>
+                    </div>
                 </div>
+
 
 
                 <div class="modal-action">
@@ -673,7 +679,8 @@ const getNextPageFirst = async () => {
                 <h3 class="font-bold text-lg">La liste des participants absents</h3>
 
                 <ul class="max-w-50 divide-y divide-gray-200 dark:divide-gray-700">
-                    <li v-if="lesAbsents" v-for="(presen, id) in lesAbsents.data" :key="id" class="py-3 sm:py-4">
+                    <li v-if="lesAbsents.data.length" v-for="(presen, id) in lesAbsents.data" :key="id"
+                        class="py-3 sm:py-4">
                         <div class="flex items-center space-x-4 rtl:space-x-reverse">
 
                             <div class="flex-1 min-w-0">
@@ -689,34 +696,40 @@ const getNextPageFirst = async () => {
                             </div>
                         </div>
                     </li>
+                    <li v-else>
+                        <p class="mt-10 mb-5 text-center text-gray-500 dark:text-gray-400">Aucune donnée disponible</p>
+                    </li>
 
                 </ul>
-                <div class="flex flex-row mx-auto">
-                    <button type="button" @click="getPreviousPageAbsent()"
-                        class="bg-gray-800 text-white rounded-l-md border-r border-gray-100 py-2 hover:bg-red-700 hover:text-white px-3">
-                        <div class="flex flex-row align-middle">
-                            <svg class="w-5 mr-2" fill="currentColor" viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd"
-                                    d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            <p class="ml-2">Prev</p>
-                        </div>
-                    </button>
-                    <button type="button" @click="getNextPageAbsent()"
-                        class="bg-gray-800 text-white rounded-r-md py-2 border-l border-gray-200 hover:bg-red-700 hover:text-white px-3">
-                        <div class="flex flex-row align-middle">
-                            <span class="mr-2">Next</span>
-                            <svg class="w-5 ml-2" fill="currentColor" viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd"
-                                    d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                    </button>
+                <div v-if="lesAbsents.data.length">
+                    <div class="flex flex-row mx-auto">
+                        <button type="button" @click="getPreviousPageAbsent()"
+                            class="bg-gray-800 text-white rounded-l-md border-r border-gray-100 py-2 hover:bg-red-700 hover:text-white px-3">
+                            <div class="flex flex-row align-middle">
+                                <svg class="w-5 mr-2" fill="currentColor" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <p class="ml-2">Prev</p>
+                            </div>
+                        </button>
+                        <button type="button" @click="getNextPageAbsent()"
+                            class="bg-gray-800 text-white rounded-r-md py-2 border-l border-gray-200 hover:bg-red-700 hover:text-white px-3">
+                            <div class="flex flex-row align-middle">
+                                <span class="mr-2">Next</span>
+                                <svg class="w-5 ml-2" fill="currentColor" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                        </button>
+                    </div>
                 </div>
+
 
 
                 <div class="modal-action">
@@ -733,7 +746,8 @@ const getNextPageFirst = async () => {
                 <h3 class="font-bold text-lg">La liste de tout ceux qui sont venus</h3>
 
                 <ul class="max-w-50 divide-y divide-gray-200 dark:divide-gray-700">
-                    <li v-if="lesPresents" v-for="(presen, id) in lesPresents.data" :key="id" class="py-3 sm:py-4">
+                    <li v-if="lesPresents.data.length" v-for="(presen, id) in lesPresents.data" :key="id"
+                        class="py-3 sm:py-4">
                         <div class="flex items-center space-x-4 rtl:space-x-reverse">
 
                             <div class="flex-1 min-w-0">
@@ -749,34 +763,40 @@ const getNextPageFirst = async () => {
                             </div>
                         </div>
                     </li>
+                    <li v-else>
+                        <p class="mt-10 mb-5 text-center text-gray-500 dark:text-gray-400">Aucune donnée disponible</p>
+                    </li>
 
                 </ul>
-                <div class="flex flex-row mx-auto">
-                    <button type="button" @click="getPreviousPage()"
-                        class="bg-gray-800 text-white rounded-l-md border-r border-gray-100 py-2 hover:bg-red-700 hover:text-white px-3">
-                        <div class="flex flex-row align-middle">
-                            <svg class="w-5 mr-2" fill="currentColor" viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd"
-                                    d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            <p class="ml-2">Prev</p>
-                        </div>
-                    </button>
-                    <button type="button" @click="getNextPage()"
-                        class="bg-gray-800 text-white rounded-r-md py-2 border-l border-gray-200 hover:bg-red-700 hover:text-white px-3">
-                        <div class="flex flex-row align-middle">
-                            <span class="mr-2">Next</span>
-                            <svg class="w-5 ml-2" fill="currentColor" viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd"
-                                    d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                    </button>
+                <div v-if="lesPresents.data.length">
+                    <div class="flex flex-row mx-auto">
+                        <button type="button" @click="getPreviousPage()"
+                            class="bg-gray-800 text-white rounded-l-md border-r border-gray-100 py-2 hover:bg-red-700 hover:text-white px-3">
+                            <div class="flex flex-row align-middle">
+                                <svg class="w-5 mr-2" fill="currentColor" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <p class="ml-2">Prev</p>
+                            </div>
+                        </button>
+                        <button type="button" @click="getNextPage()"
+                            class="bg-gray-800 text-white rounded-r-md py-2 border-l border-gray-200 hover:bg-red-700 hover:text-white px-3">
+                            <div class="flex flex-row align-middle">
+                                <span class="mr-2">Next</span>
+                                <svg class="w-5 ml-2" fill="currentColor" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                        </button>
+                    </div>
                 </div>
+
 
 
                 <div class="modal-action">
