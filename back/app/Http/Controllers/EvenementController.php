@@ -19,10 +19,9 @@ class EvenementController extends Controller
     }
 
     //Nombre d'evenement total pour chaque Organisateurs
-    public function countAllEventbyUser($id)
+    public function countAllEventbyUser()
     {
-        $user = User::find($id);
-        $data = $user->eventy()->count();
+        $data = evenement::all()->count();
         return response()->json($data);
     }
 

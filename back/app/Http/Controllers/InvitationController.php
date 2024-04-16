@@ -126,37 +126,72 @@ class InvitationController extends Controller
         return response()->json($formattedResponse);
     }
 
-
-    //recuperer la liste de tous les invites qui sont venus au debut du soirer mais qui n'ont pas attendus jusqu'au contre scan (appele)
-    public function getListPresenceFirst($event_id)
-    {
-        $presences = Presence::where('evenement_id', $event_id)->where('firstPresence', true)->where('secondPresence', false)->get();
-        return response()->json([
-            'presences' => $presences
-        ], 200);
-    }
-
-
     public function getListAbsence($event_id)
     {
         // Récupérer tous les utilisateurs de l'application sauf le rôle admin
         $usrs = User::where('role', '!=', 'admin')->get();
 
         // Récupérer tous les utilisateurs qui ont fait le premier scan
-        $presences = Presence::where('evenement_id', $event_id)->where('firstPresence', true)->get();
+        $presences = Presence::where('evenement_id', $event_id)
+            ->where('firstPresence', true)
+            ->where('secondPresence', false)
+            ->get();
 
         // Comparer les deux tableaux pour récupérer les absents
         $absents = $usrs->diff($presences);
 
         // Paginer les résultats
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $currentPage = request()->query('page', 1); // Récupérer le numéro de la page actuelle depuis la requête
         $perPage = 5;
-        $currentPageItems = $absents->slice(($currentPage - 1) * $perPage, $perPage)->all();
-        $absentsPaginated = new LengthAwarePaginator($currentPageItems, count($absents), $perPage);
+        $offset = ($currentPage - 1) * $perPage;
+        $currentPageItems = array_slice($absents->all(), $offset, $perPage);
+        $absentsPaginated = new LengthAwarePaginator($currentPageItems, count($absents), $perPage, $currentPage);
 
-        return response(
-            $absentsPaginated,
-            200
-        );
+        // Obtenir l'URL complète pour la page suivante
+        $nextPageUrl = $absentsPaginated->currentPage() < $absentsPaginated->lastPage() ?
+            url()->current() . '?page=' . ($absentsPaginated->currentPage() + 1) : null;
+
+        // Obtenir l'URL complète pour la page précédente
+        $prevPageUrl = $absentsPaginated->currentPage() > 1 ?
+            url()->current() . '?page=' . ($absentsPaginated->currentPage() - 1) : null;
+
+        // Ajouter les URL complètes à la réponse JSON
+        $response = [
+            'data' => $absentsPaginated->items(),
+            'next_page_url' => $nextPageUrl,
+            'prev_page_url' => $prevPageUrl
+        ];
+        return response()->json($response, 200);
+    }
+
+    //recuperer la liste de tous les invites qui sont venus au debut du soirer mais qui n'ont pas attendus jusqu'au contre scan (appele)
+    public function getListPresenceFirst($event_id)
+    {
+        $presences = Presence::with('usera')->where('evenement_id', $event_id)->where('firstPresence', true)->where('secondPresence', false)->paginate(5);
+        // Formater la réponse JSON
+        $formattedResponse = [
+            'data' => $presences->map(function ($presence) {
+                // Extraire uniquement les informations nécessaires de l'utilisateur
+                $user = $presence->usera;
+                return [
+                    'firstname' => $user->firstname,
+                    'lastname' => $user->lastname,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                ];
+            }),
+            // Ajouter les informations de pagination
+            'pagination' => [
+                'current_page' => $presences->currentPage(),
+                'from' => $presences->firstItem(),
+                'to' => $presences->lastItem(),
+                'per_page' => $presences->perPage(),
+                'total' => $presences->total(),
+                'prev_page_url' => $presences->previousPageUrl(),
+                'next_page_url' => $presences->nextPageUrl(),
+            ],
+        ];
+
+        return response()->json($formattedResponse);
     }
 }

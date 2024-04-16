@@ -57,7 +57,7 @@ Route::get('/event/{event}', [EvenementController::class , 'oneEvent'])->middlew
 Route::get('/latest', [EvenementController::class , 'latest'])->middleware('auth:sanctum');
 Route::put('/update/{event}', [EvenementController::class , 'updateEvent'])->middleware('auth:sanctum');
 Route::delete('/delete/{event}', [EvenementController::class , 'deleteEvent'])->middleware('auth:sanctum');
-Route::get('/count/{id}', [EvenementController::class , 'countAllEventbyUser'])->middleware('auth:sanctum');
+Route::get('/count', [EvenementController::class , 'countAllEventbyUser'])->middleware('auth:sanctum');
 Route::get('/eventCount', [EvenementController::class , 'countAllEvents'])->middleware('auth:sanctum');
 Route::get('/countValide/{id}', [EvenementController::class , 'countAllEventValidebyUser'])->middleware('auth:sanctum');
 Route::get('/countNonValide/{id}', [EvenementController::class , 'countAllEventNonValidebyUser'])->middleware('auth:sanctum');
