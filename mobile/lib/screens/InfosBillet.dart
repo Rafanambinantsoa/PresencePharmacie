@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:mobile/models/NotifScan.dart';
 import 'package:mobile/models/Ticket.dart';
+import 'package:mobile/models/UserScanned.dart';
 import 'package:mobile/models/api_response.dart';
 import 'package:mobile/models/resultatScan.dart';
 import 'package:mobile/screens/Dashboard.dart';
@@ -20,12 +22,23 @@ class InfosBillet extends StatefulWidget {
 }
 
 class _InfosBilletState extends State<InfosBillet> {
-  String event = "Evenement non trouvé";
+  String event = "Pharmacien non trouvé";
   int etat = 0;
   int prix = 0;
   String text = "Etat non trouvé";
 
-  String maitre = "";
+  String firstname = "";
+  String lastname = "";
+  String email = "";
+  int id = 0;
+  String phone = "";
+
+  String userId = "";
+  String eventId = "";
+
+  String kimChoice = "";
+  String scanText = "Valider le premier scan";
+
   @override
   void initState() {
     super.initState();
@@ -35,19 +48,33 @@ class _InfosBilletState extends State<InfosBillet> {
   void test() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     setState(() {
-      maitre = pref.getString("billets")!;
+      userId = pref.getString("userId")!;
+      eventId = pref.getString("eventId")!;
+      kimChoice = pref.getString("scanChoice")!;
+      if (kimChoice == "2") {
+        scanText = "Valider le deuxieme scan";
+      }
     });
+
     var response =
-        await BaseClient().get('/ticketInfo/$maitre').catchError((err) {});
-    if (response == null) return;
-    var caster = Ticket.fromJson(jsonDecode(response));
-    debugPrint(response);
-    setState(() {
-      event = caster.title!;
-      etat = caster.isScanned!;
-      prix = caster.prix!;
-      text = caster.scannedStatus;
-    });
+        await BaseClient().get('/user/info/$userId').catchError((err) {});
+    if (response != "") {
+      var caster = UserScanned.fromJson(jsonDecode(response));
+      debugPrint(response);
+      setState(() {
+        firstname = caster.firstname!;
+        lastname = caster.lastname!;
+        phone = caster.phone!;
+        email = caster.email!;
+        id = caster.id!;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Pharmacien non trouvé"),
+        ),
+      );
+    }
   }
 
   @override
@@ -63,7 +90,7 @@ class _InfosBilletState extends State<InfosBillet> {
             },
             icon: const Icon(Icons.arrow_back_ios),
           ),
-          title: const Text('Infos du Billet'),
+          title: const Text('Infos Pharmacien'),
           centerTitle: true,
           backgroundColor: Colors.grey[900],
           actions: [
@@ -90,7 +117,7 @@ class _InfosBilletState extends State<InfosBillet> {
                   const Column(
                     children: <Widget>[
                       Text(
-                        'Voici les Infos du Billets',
+                        'Information Pharmacien',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 30),
                       ),
@@ -100,17 +127,22 @@ class _InfosBilletState extends State<InfosBillet> {
                   Column(
                     children: <Widget>[
                       Text(
-                        "Evenement : $event  ",
+                        "Firstname : $firstname  ",
                         style: const TextStyle(fontSize: 18),
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        'Prix : $prix Ar',
+                        'Lastname : $lastname ',
                         style: const TextStyle(fontSize: 18),
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        'Etat  : $text',
+                        'Email : $email ',
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Phone  : $phone',
                         style: const TextStyle(fontSize: 18),
                       ),
                     ],
@@ -123,25 +155,46 @@ class _InfosBilletState extends State<InfosBillet> {
                         onPressed: () async {
                           SharedPreferences pref =
                               await SharedPreferences.getInstance();
-                          var idbillet = pref.getString("billets");
-                          var userid = pref.getInt("userId");
-                          var user = {
-                            "idOrgan": userid,
-                          };
+                          // var scanId = pref.getString("scanChoice");
+                          var scanChoice = pref.getString("scanChoice");
+                          var eventId = pref.getString("eventId");
 
-                          var response = await BaseClient()
-                              .updatebillet('/scanMe/$idbillet', user)
-                              .catchError((err) {});
-                          if (response == null) return;
-                          var explose = Scan.fromJson(jsonDecode(response));
-                          String? top = explose.message;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(top!),
-                            ),
-                          );
-                          test();
-                          // debugPrint(explose.message);
+                          if (scanChoice == "1") {
+                            var response = await BaseClient()
+                                .updateFirstPresence(
+                                    '/event/$eventId/firstScan/$id')
+                                .catchError((err) {
+                              print(err);
+                            });
+                            if (response == null) return;
+                            var caster =
+                                NotifScan.fromJson(jsonDecode(response));
+                            String? top = caster.message;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(top),
+                              ),
+                            );
+                            test();
+                          } else {
+                            var response = await BaseClient()
+                                .updateSecondPresence(
+                                    '/event/$eventId/secondScan/$id')
+                                .catchError((err) {
+                              print(err);
+                            });
+                            print(response);
+                            if (response == null) return;
+                            var caster =
+                                NotifScan.fromJson(jsonDecode(response));
+                            String? top = caster.message;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(top),
+                              ),
+                            );
+                            test();
+                          }
                         },
                         shape: RoundedRectangleBorder(
                           side: const BorderSide(
@@ -149,8 +202,8 @@ class _InfosBilletState extends State<InfosBillet> {
                           ),
                           borderRadius: BorderRadius.circular(18),
                         ),
-                        child: const Text(
-                          'Valider le Billets',
+                        child: Text(
+                          "$scanText",
                           style: TextStyle(
                               fontWeight: FontWeight.w600, fontSize: 18),
                         ),
@@ -170,8 +223,12 @@ class _InfosBilletState extends State<InfosBillet> {
                           minWidth: double.infinity,
                           height: 40,
                           color: const Color.fromRGBO(255, 235, 59, 1),
-                          onPressed: () async {
-                            await GestionScanner(context).scanqrCode();
+                          onPressed: () => {
+                            //redirect to back to DashBoard
+                            Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                    builder: (context) => const Dashboard()),
+                                (route) => false)
                           },
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(50),

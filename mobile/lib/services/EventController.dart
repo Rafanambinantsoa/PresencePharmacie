@@ -35,12 +35,13 @@ class EventController extends GetxController {
     }
   }
 
-  Future getEvents(id) async {
+  Future getEvents() async {
     try {
       isLoading.value = true;
-      var response = await http.get(
-          Uri.parse(baseURL + '/allEventUser/' + id.toString()),
-          headers: {'Accept': 'application/json'});
+      var response =
+          await http.get(Uri.parse(baseURL + '/alllEvents'), headers: {
+        'Accept': 'application/json',
+      });
 
       if (response.statusCode == 200) {
         //clear the list before adding new items

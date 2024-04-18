@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/instance_manager.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:mobile/constant.dart';
 import 'package:mobile/screens/Participants.dart';
+import 'package:mobile/screens/qrScanner.dart';
 import 'package:mobile/services/EventController.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EventList extends StatefulWidget {
   const EventList({super.key, required this.id});
@@ -15,20 +18,28 @@ class EventList extends StatefulWidget {
 
 class _EventListState extends State<EventList> {
   final EventController _controller = Get.put(EventController());
+  late String scanChoice = "";
+
+  void getScanChoice() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setString("scanChoice", scanChoice);
+  }
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _controller.getEvents(widget.id);
+      _controller.getEvents();
     });
     super.initState();
+    scanChoice = widget.id.toString();
+    getScanChoice();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Liste de mes événements"),
+        title: const Text("Choix de l'événements"),
         centerTitle: true,
         backgroundColor: Colors.grey[900],
       ),
@@ -42,9 +53,8 @@ class _EventListState extends State<EventList> {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
-                      Get.to(() => ParticipantEvent(
+                      Get.to(() => qrScanner(
                             id: _controller.events.value[index].id.toString(),
-                            nomEvent: _controller.events.value[index].titre,
                           ));
                     },
                     child: Card(
@@ -57,17 +67,28 @@ class _EventListState extends State<EventList> {
                         leading: CircleAvatar(
                           backgroundColor: Colors.amber,
                           radius: 25,
-                          backgroundImage: NetworkImage(
-                              imgUrl + _controller.events.value[index].image),
                         ),
                         title: Text(_controller.events.value[index].titre,
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black)),
-                        subtitle: Text(_controller.events.value[index].lieu,
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black)),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(_controller.events.value[index].lieu,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                    color: Colors.black)),
+                            Text("Nombre de present: ",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                    color: Colors.black)),
+                            Text("Nombre des Absent: ",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                    color: Colors.black)),
+                          ],
+                        ),
                         trailing: Icon(Icons.arrow_forward_ios),
                       ),
                     ),

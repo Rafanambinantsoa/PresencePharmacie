@@ -50,14 +50,21 @@ class InvitationController extends Controller
     public function showUserInformation($token)
     {
         $user = User::where('badgeToken', $token)->first();
-        return response([
-            "user" => $user
-        ], 200);
+        return response(
+            $user,
+            200
+        );
     }
 
     //une methode pour la  premiere presence 
     public function firstPresence($event_id, $user_id)
     {
+        if (Presence::where('user_id', $user_id)->where('evenement_id', $event_id)->exists()) {
+            return response()->json([
+                'message' => 'Première présence déjà enregistrée'
+            ], 400);
+        }
+
         Presence::create([
             'user_id' => $user_id,
             'evenement_id' => $event_id,

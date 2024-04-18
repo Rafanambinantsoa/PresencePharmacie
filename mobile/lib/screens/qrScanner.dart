@@ -5,22 +5,33 @@ import 'package:mobile/screens/InfosBillet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class qrScanner extends StatefulWidget {
-  const qrScanner({super.key});
+  const qrScanner({super.key, required this.id});
 
   @override
   State<qrScanner> createState() => _qrScannerState();
+  final String id;
 }
 
 class _qrScannerState extends State<qrScanner> {
+  late String _eventId;
+
   var getResult = "";
   void redirectMe(idao) async {
     if (idao != "") {
       SharedPreferences pref = await SharedPreferences.getInstance();
-      pref.setString("billets", idao);
+      pref.setString("userId", idao);
+      pref.setString("eventId", _eventId);
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => InfosBillet()),
           (route) => false);
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _eventId = widget.id.toString();
+    print(_eventId);
   }
 
   @override
