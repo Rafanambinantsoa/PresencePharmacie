@@ -22,15 +22,46 @@ class BaseClient {
     }
   }
 
-  // Mettre a jour le billets scanner
-  Future<dynamic> updatebillet(String api, dynamic object) async {
+  //GET
+  Future<dynamic> updateFirstPresence(String api) async {
     var url = Uri.parse(baseUrl + api);
-    var _payload = json.encode(object);
     var _headers = {
       'Content-Type': 'application/json',
     };
 
-    var response = await client.post(url, body: _payload, headers: _headers);
+    var response = await client.post(url, headers: _headers);
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      return response.body;
+      //throw exception and catch it in UI
+    }
+  }
+
+  //GET
+  Future<dynamic> updateSecondPresence(String api) async {
+    var url = Uri.parse(baseUrl + api);
+    var _headers = {
+      'Content-Type': 'application/json',
+    };
+
+    var response = await client.put(url, headers: _headers);
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      return response.body;
+      //throw exception and catch it in UI
+    }
+  }
+
+  // Mettre a jour le billets scanner
+  Future<dynamic> updatebillet(String api) async {
+    var url = Uri.parse(baseUrl + api);
+    var _headers = {
+      'Content-Type': 'application/json',
+    };
+
+    var response = await client.post(url, headers: _headers);
     if (response.statusCode == 200) {
       return response.body;
     }

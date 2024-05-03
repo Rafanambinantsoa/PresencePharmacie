@@ -77,7 +77,7 @@ class _WelcomeState extends State<Welcome> {
                     height: 40,
                     onPressed: () {
                       Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => qrScanner()));
+                          MaterialPageRoute(builder: (context) => Login_v1()));
                     },
                     shape: RoundedRectangleBorder(
                       side: BorderSide(

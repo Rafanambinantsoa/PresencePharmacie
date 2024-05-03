@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:mobile/constant.dart';
 import 'package:mobile/models/api_response.dart';

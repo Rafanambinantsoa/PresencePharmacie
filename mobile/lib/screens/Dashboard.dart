@@ -86,24 +86,25 @@ class _DashboardState extends State<Dashboard> {
           children: [
             //Icons button wiht text begin scan ticket
             GestureDetector(
-              onTap: () async {
-                await GestionScanner(context).scanqrCode();
+              onTap: () => {
+                Get.to(() => EventList(
+                      id: "1",
+                    ))
               },
               child: const VersScan(
                 icon: Icons.qr_code_scanner,
-                text: "Scanner  ticket",
+                text: "Premier  Scan",
               ),
             ),
             GestureDetector(
               onTap: () => {
                 Get.to(() => EventList(
-                      id: id.toString(),
+                      id: "2",
                     ))
               },
-              child: const CounterCard(
-                icon: Icons.calendar_today,
-                count: 10,
-                text: "Mes évenements",
+              child: const VersScan(
+                icon: Icons.qr_code_scanner,
+                text: "Deuxième Scan",
               ),
             ),
           ],

@@ -469,6 +469,137 @@ const getNextPageFirst = async () => {
         }
     }
 };
+const state = reactive({
+    loading: false,
+    idUserSearch: null
+})
+const inviteRes = ref(null);
+const sendInvitation = async (id) => {
+    state.loading = true;
+    try {
+        const response = await $fetch(`${uri}event/invitation/${id}`, {
+            method: "POST",
+            headers: {
+                'Authorization': 'Bearer ' + token.value
+            }
+        });
+
+        if (response) {
+            inviteRes.value = response;
+            toast.success(response.message, {
+                autoClose: 3000,
+            })
+            state.loading = false
+            console.log(response);
+        }
+    } catch (error) {
+        state.loading = false
+        toast.error(error, {
+            autoClose: 3000,
+        })
+        console.error("Une erreur s'est produite lors de la récupération des données de la page suivante :", error);
+    }
+}
+
+const openSearch = (id) => {
+    state.idUserSearch = id
+    searchMe.showModal()
+}
+
+const sendSingleInviation = async (event) => {
+    // console.log("User " + state.idUserSearch + "Event" + event);
+    state.loading = true;
+    try {
+        const response = await $fetch(`${uri}event/${event}/${state.idUserSearch}`, {
+            method: "POST",
+            headers: {
+                'Authorization': 'Bearer ' + token.value
+            }
+        });
+
+        if (response) {
+            inviteRes.value = response;
+            toast.success(response.message, {
+                autoClose: 3000,
+            })
+            state.loading = false
+            state.idUserSearch = null
+            console.log(response);
+        }
+    } catch (error) {
+        state.loading = false
+        toast.error(error, {
+            autoClose: 3000,
+        })
+        console.error("Une erreur s'est produite lors de la récupération des données de la page suivante :", error);
+    }
+}
+
+const sendQr = async () => {
+    state.loading = true;
+    try {
+        const response = await $fetch(`${uri}sendQr`, {
+            method: "GET",
+            headers: {
+                'Authorization': 'Bearer ' + token.value
+            }
+        });
+
+        if (response) {
+            inviteRes.value = response;
+            toast.success(response.message, {
+                autoClose: 3000,
+            })
+            state.loading = false
+            state.idUserSearch = null
+            console.log(response);
+        }
+    } catch (error) {
+        state.loading = false
+        toast.error(error, {
+            autoClose: 3000,
+        })
+        console.error("Une erreur s'est produite lors de la récupération des données de la page suivante :", error);
+    }
+}
+
+const sendSingleQr = async (id) => {
+    Swal.fire({
+        title: 'Chargement en cours...',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        allowEnterKey: false,
+        didOpen: () => {
+            Swal.showLoading()
+        }
+    });
+    try {
+        const response = await $fetch(`${uri}sendQrsingle/${id}`, {
+            method: "GET",
+            headers: {
+                'Authorization': 'Bearer ' + token.value
+            }
+        });
+
+        if (response) {
+            Swal.close()
+            inviteRes.value = response;
+            toast.success(response.message, {
+                autoClose: 3000,
+            })
+            state.loading = false
+            state.idUserSearch = null
+            console.log(response);
+        }
+    } catch (error) {
+        Swal.close()
+        state.loading = false
+        toast.error(error, {
+            autoClose: 3000,
+        })
+        console.error("Une erreur s'est produite lors de la récupération des données de la page suivante :", error);
+    }
+}
 
 
 
@@ -607,6 +738,41 @@ const getNextPageFirst = async () => {
     <!-- End Nav -->
     <!-- Start Main -->
     <main class="container mx-w-6xl mx-auto py-4">
+
+        <!-- MOdal recherche  -->
+        <dialog id="searchMe" class="modal">
+            <div class="modal-box  w-full h-auto">
+                <p class="py-4"> Selectionner événement</p>
+                <input type="text" v-model="searchQuery" placeholder=" Veuiller taper le mot cle svp"
+                    class="input  w-full max-w-xs" />
+                <div v-if="searchQuery.length > 0 && searchResults.length > 0">
+                    <ul class="menu menu-md bg-base-200 w-full mt-5 rounded-box">
+                        <li v-for="result in searchResults" :key="result.id">
+                            <!-- <a @click="oneEvent(result.id)">{{
+                            result.titre }}</a> -->
+                            <!-- bouton envoier invitation      -->
+                            <p> {{ result.titre }} </p>
+                            <IconsInvite @click="sendSingleInviation(result.id)" :isDisabled="state.loading"
+                                :isLoading="state.loading" :text="'Envoyer invitation'" />
+                        </li>
+                    </ul>
+                </div>
+                <div v-else-if="searchResults.length <= 0">
+                    <ul class="menu menu-md bg-base-200 w-full mt-5 rounded-box text=center">
+                        <li><a>je trouve pas l'event "{{ searchQuery }}" </a></li>
+                    </ul>
+                </div>
+
+                <div class="modal-action">
+                    <form method="dialog">
+                        <!-- if there is a button, it will close the modal -->
+                        <button class="btn">Fermer</button>
+                    </form>
+                </div>
+            </div>
+        </dialog>
+        <!-- MOdal recherche fin  -->
+
         <!-- modal liste des gens premier scan tout simplement   -->
         <dialog id="modalFirst" class="modal">
             <form method="dialog" class="modal-box w-11/12 max-w-5xl">
@@ -890,14 +1056,9 @@ const getNextPageFirst = async () => {
                             <h6 class="text-lg font-bold dark:text-white mb-7">Details d'un Evenement</h6>
                         </div>
                         <div class="w-1/2 p-4">
-                            <button
-                                class="group relative h-10 w-60 overflow-hidden rounded-lg bg-white text-base shadow">
-                                <div
-                                    class="absolute inset-0 w-2 bg-gray-400 transition-all duration-250 ease-out group-hover:w-full">
-                                </div>
-                                <span class=" px-1 relative text-black group-hover:text-white"> Inviter tout le monde
-                                </span>
-                            </button>
+                            <IconsInvite v-if="detailEvent" @click="sendInvitation(detailEvent.id)"
+                                :isDisabled="state.loading" :isLoading="state.loading"
+                                :text="'Inviter tous le monde'" />
                         </div>
 
                     </div>
@@ -1037,14 +1198,14 @@ const getNextPageFirst = async () => {
             <div class="grid grid-cols-1 md:grid-cols-5 items-start px-4 xl:p-0 gap-y-4 md:gap-6">
                 <div class="col-start-1 col-end-5">
                     <div class="flex">
-                        <div class="w-1/2">
+                        <div class="w-1/3">
                             <!-- Contenu du div de gauche -->
 
                             <h2 class="text-xs md:text-sm text-gray-800 dark:text-gray-300 font-bold tracking-wide">
                                 Les événements
                             </h2>
                         </div>
-                        <div class="w-1/2 ml-80">
+                        <div class="w-1/3 ml-80">
                             <!-- Contenu du div de droite -->
                             <button type="button" onclick="create.showModal()"
                                 class="text-white bg-[#2557D6] hover:bg-[#2557D6]/90 focus:ring-4 focus:ring-[#2557D6]/50 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#2557D6]/50 mr-2 mb-2">
@@ -1055,6 +1216,14 @@ const getNextPageFirst = async () => {
                                 </svg>
                                 Créer un événement
                             </button>
+
+                        </div>
+                        <div class=" ml-80">
+                            <!-- Contenu du div de droite -->
+
+                            <IconsInvite @click="sendQr()" :isDisabled="state.loading" :isLoading="state.loading"
+                                :text="'Envoyer le QRcode'" />
+
                         </div>
                     </div>
                 </div>
@@ -1168,12 +1337,12 @@ const getNextPageFirst = async () => {
             <div
                 class="col-span-3 w-90 bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-50 flex flex-col space-y-6 dark:border-none">
 
-
                 <div class="flex justify-between items-center">
                     <h2 class="text-sm text-gray-600 dark:text-gray-400 font-bold tracking-wide">Tous les
                         pharmaciens
                     </h2>
                 </div>
+
 
                 <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -1212,8 +1381,14 @@ const getNextPageFirst = async () => {
                                     {{ dean.phone }}
                                 </td>
                                 <td class="px-6 py-4 text-right">
-                                    <a href="#"
-                                        class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Consulter</a>
+                                    <!-- bouton rechecher  -->
+                                    <!-- <a @click="sendSingleQr(dean.id)" href="#"
+                                        class="font-medium text-blue-600 dark:text-blue-500 hover:underline"></a> -->
+                                    <button @click="sendSingleQr(dean.id)"
+                                        class="middle none center mr-4 rounded-lg bg-gray-500 py-3 px-6 font-sans text-xs font-bold uppercase text-white shadow-md shadow-green-500/20 transition-all hover:shadow-lg hover:shadow-green-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                                        data-ripple-light="true">
+                                        Envoyer Qr
+                                    </button>
                                 </td>
                             </tr>
 
@@ -1266,94 +1441,30 @@ import {
     LinearScale
 } from 'chart.js'
 import { Bar } from 'vue-chartjs'
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
+import Swal from 'sweetalert2';
 
 export default {
-    name: 'App',
-    components: {
-        Bar
-    },
     data() {
         return {
-            //les données du graphique : nombre event en cours  , terminer ,  et total
-            id: 0,
-            data: {
-                labels: ['Event en cours', 'Event terminer', 'Total'],
-                datasets: [{
-                    label: 'Nombre d\'evenement',
-                    data: [12, 2, 14],
-                    backgroundColor: [
-                        '#3B82F6',
-                        '#10B981',
-                        '#F59E0B'
-                    ],
-                    borderColor: [
-                        '#3B82F6',
-                        '#10B981',
-                        '#F59E0B'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-        }
+            searchQuery: '',
+            data: [] // initialiser les données avec un tableau vide
+        };
     },
-    mounted() {
-        this.getUserId()
-    },
-    methods: {
-        async getUserId() {
-            this.data.datasets[0].data = [
-                5,
-                5,
-                5
-            ];
-
-            // Refresh the chart
-            this.renderChart(this.data, this.options);
-        },
-        async getEventData() {
-            let token = useCookie("token")
-            let id = await $fetch(`${uri}user`, {
-                headers: {
-                    'Authorization': 'Bearer ' + token.value
-
-                }
-            });
-            try {
-                const responseEncours = await $fetch(`${uri}eventEncoursCount/${id.id}`, {
-                    headers: {
-                        'Authorization': 'Bearer ' + token.value
-
-                    }
-                });
-                const responseTerminer = await $fetch(`${uri}eventOverCount/${id.id}`, {
-                    headers: {
-                        'Authorization': 'Bearer ' + token.value
-
-                    }
-                });
-                const responseAll = await $fetch(`${uri}all`, {
-                    headers: {
-                        'Authorization': 'Bearer ' + token.value
-
-                    }
-                });
-                console.log(responseEncours);
-
-
-                this.data.datasets[0].data = [
-                    responseEncours,
-                    responseTerminer,
-                    responseAll
-                ];
-
-                // Refresh the chart
-                this.renderChart(this.data, this.options);
-            } catch (error) {
-                console.error('Error fetching data:', error);
+    async mounted() {
+        let token = useCookie("token"); // utilisez useCookie ici sans le préfixe this
+        const response = await $fetch(`${uri}searchevent`, {
+            headers: {
+                'Authorization': 'Bearer ' + token.value
             }
+        });
+        this.data = await response; // mettez à jour les données après avoir reçu la réponse
+    },
+    computed: {
+        searchResults() {
+            return this.data.filter(item => {
+                return item.titre.toLowerCase().includes(this.searchQuery.toLowerCase());
+            });
         }
-    }
-}
+    },
+};
 </script>
