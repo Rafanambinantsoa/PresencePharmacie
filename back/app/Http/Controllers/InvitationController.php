@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Mail;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class InvitationController extends Controller
+
 {
     //A controller who send An email to all User that an event is created
     public function EnvoieInvitation($id)
