@@ -8,10 +8,12 @@ use App\Http\Resources\PresentCollection;
 use App\Models\evenement;
 use App\Models\Presence;
 use App\Models\User;
+use Dompdf\Dompdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Mail;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class InvitationController extends Controller
 {
@@ -200,5 +202,112 @@ class InvitationController extends Controller
         ];
 
         return response()->json($formattedResponse);
+    }
+
+    public function sendSingleInvitation(evenement $event, User $user)
+    {
+        try {
+            Mail::send('mails.invitation', ['evenement' => $event, 'username' => $user->firstname], function ($message) use ($user) {
+                $message->to($user->email);
+                $message->subject('Nouvel événement');
+            });
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de l\'envoie de l\'invitation',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+        return response()->json([
+            'message' => 'Invitation envoyée avec succès'
+        ], 200);
+    }
+
+    public function getAllEvent()
+    {
+        $events = evenement::all();
+        return response()->json($events);
+    }
+
+    public function sendQrAllUser()
+    {
+        $users = User::where('role', '!=', 'admin')->get();
+
+        foreach ($users as $user) {
+            try {
+                // Générer le QR code à partir du badgeToken de l'utilisateur
+                $qrCode = QrCode::size(200)->generate($user->badgeToken);
+
+                // Générer le contenu HTML du PDF avec le QR code
+                $pdfContent = '<h1>Bonjour ' . $user->firstname . ',</h1>';
+                $pdfContent .= '<p>Voici votre QR Code :</p>';
+                $pdfContent .= '<img src="data:image/png;base64,' . base64_encode($qrCode) . '">';
+                $pdfContent .= '<p>Merci,<br>Votre équipe</p>';
+
+                // Créer une instance de Dompdf
+                $dompdf = new Dompdf();
+                $dompdf->loadHtml($pdfContent);
+
+                // Générer le PDF
+                $dompdf->render();
+
+                // Envoyer le PDF par courriel
+                Mail::send([], [], function ($message) use ($user, $dompdf) {
+                    $message->to($user->email)
+                        ->subject('Votre QR Code')
+                        ->html('Veuillez trouver ci-joint votre PDF avec le code QR.')
+                        ->attachData($dompdf->output(), 'QR_Code.pdf', [
+                            'mime' => 'application/pdf',
+                        ]);
+                });
+            } catch (Exception $e) {
+                return response()->json([
+                    'message' => 'Erreur lors de l\'envoie de l\'invitation',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+        }
+        return response()->json([
+            'message' => 'Invitation envoyée avec succès'
+        ], 200);
+    }
+
+    public function sendQrToUser(User $user)
+    {
+        try {
+            // Générer le QR code à partir du badgeToken de l'utilisateur
+            $qrCode = QrCode::size(200)->generate($user->badgeToken);
+
+            // Générer le contenu HTML du PDF avec le QR code
+            $pdfContent = '<h1>Bonjour ' . $user->firstname . ',</h1>';
+            $pdfContent .= '<p>Voici votre QR Code :</p>';
+            $pdfContent .= '<img src="data:image/png;base64,' . base64_encode($qrCode) . '">';
+            $pdfContent .= '<p>Merci,<br>Votre équipe</p>';
+
+            // Créer une instance de Dompdf
+            $dompdf = new Dompdf();
+            $dompdf->loadHtml($pdfContent);
+
+            // Générer le PDF
+            $dompdf->render();
+
+            // Envoyer le PDF par courriel
+            Mail::send([], [], function ($message) use ($user, $dompdf) {
+                $message->to($user->email)
+                    ->subject('Votre QR Code')
+                    ->html('Veuillez trouver ci-joint votre PDF avec le code QR.')
+                    ->attachData($dompdf->output(), 'QR_Code.pdf', [
+                        'mime' => 'application/pdf',
+                    ]);
+            });
+
+            return response()->json([
+                'message' => 'PDF avec le code QR envoyé avec succès à ' . $user->email
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de l\'envoie du PDF avec le code QR à ' . $user->email,
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

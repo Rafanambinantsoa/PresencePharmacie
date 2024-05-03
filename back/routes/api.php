@@ -115,9 +115,13 @@ Route::get('/cancel', [CommandeController::class , 'cancel'])->name('cancel');
 Route::get('/test', [CommandeController::class , 'test']);
 
 Route::post('/event/invitation/{event}', [InvitationController::class , 'EnvoieInvitation']);
+Route::post('/event/{event}/{user}', [InvitationController::class , 'sendSingleInvitation']);
 Route::get('/user/info/{token}', [InvitationController::class , 'showUserInformation']);
 Route::post('/event/{event_id}/firstScan/{user_id}' , [InvitationController::class , 'firstPresence']);
 Route::put('/event/{event_id}/secondScan/{user_id}' , [InvitationController::class , 'secondPresence']);
 Route::get('/event/listPresence/{event_id}' , [InvitationController::class , 'getListPresence']);
 Route::get('/event/listPresence/{event_id}/first' , [InvitationController::class , 'getListPresenceFirst']);
 Route::get('/event/listAbsence/{event_id}' , [InvitationController::class , 'getListAbsence']);
+Route::get('/searchevent' , [InvitationController::class , 'getAllEvent']);
+Route::get('/sendQr' , [InvitationController::class , 'sendQrAllUser']);    
+Route::get('/sendQrsingle/{user}' , [InvitationController::class , 'sendQrToUser']);    

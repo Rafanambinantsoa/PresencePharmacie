@@ -72,23 +72,10 @@ class _EventListState extends State<EventList> {
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black)),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(_controller.events.value[index].lieu,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.black)),
-                            Text("Nombre de present: ",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.black)),
-                            Text("Nombre des Absent: ",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.black)),
-                          ],
-                        ),
+                        subtitle: Text(_controller.events.value[index].lieu,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black)),
                         trailing: Icon(Icons.arrow_forward_ios),
                       ),
                     ),
